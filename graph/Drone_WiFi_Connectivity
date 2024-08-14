@@ -1,0 +1,30 @@
+// Drone WiFi Connectivity
+digraph {
+	graph [size="8,8"]
+	node [fontname=Helvetica fontsize=12 height=1 shape=box style=filled width=2]
+	edge [fontname=Helvetica fontsize=10]
+	D1 [label="Mini Drone
+(Tello)" fillcolor="#add8e6" fontcolor="#000000"]
+	CPU [label="Central Processing Unit
+(Laptop with Flask Server)" fillcolor="#90ee90" fontcolor="#000000"]
+	D1 -> CPU [label="WiFi (2.4 GHz)
+UDP Port 8889 (Commands)" color="#0000ff" dir=forward]
+	CPU -> D1 [label="UDP Port 11111 (Video Stream)" color="#0000ff" dir=back]
+	SDK [label="DJI Tello SDK
+(Control Library)" fillcolor="#ffb6c1" fontcolor="#000000"]
+	CmdHandler [label="Command Handler" fillcolor="#ffb6c1" fontcolor="#000000"]
+	RespHandler [label="Response Handler" fillcolor="#ffb6c1" fontcolor="#000000"]
+	VideoHandler [label="Video Stream Handler" fillcolor="#ffa07a" fontcolor="#000000"]
+	subgraph cluster_cpu {
+		color=black label="Central Processing Unit (Laptop)"
+		color="#f0f0f0" style=filled
+		SDK
+		CmdHandler
+		RespHandler
+		VideoHandler
+		SDK -> CmdHandler [label="Process Commands" color="#ff6347"]
+		CmdHandler -> RespHandler [label="Send to Drone
+Receive Responses" color="#ff6347"]
+		SDK -> VideoHandler [label="Handle Video Stream" color="#ffa07a"]
+	}
+}

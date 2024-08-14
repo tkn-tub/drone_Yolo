@@ -1,0 +1,42 @@
+// YOLO Image Tracking Flowchart
+digraph {
+	nodesep=1.0 rankdir=LR ranksep=2.0 size="12,8"
+	A [label="Frame Capture
+(Capture frames)" color=lightblue2 fontname=Helvetica shape=box style=filled]
+	B [label="Preprocessing
+(Resize & normalize)" color=lightblue2 fontname=Helvetica shape=box style=filled]
+	C [label="Object Detection
+(YOLO detection)" color=lightblue2 fontname=Helvetica shape=box style=filled]
+	D [label="Non-Maximum Suppression
+(Filter boxes)" color=lightblue2 fontname=Helvetica shape=box style=filled]
+	E [label="Tracking
+(Assign IDs & update tracks)" color=lightblue2 fontname=Helvetica shape=box style=filled]
+	F [label="Visualization
+(Annotate frames)" color=lightblue2 fontname=Helvetica shape=box style=filled]
+	G [label="Performance Monitoring
+(Measure latency & FPS)" color=lightblue2 fontname=Helvetica shape=box style=filled]
+	H [label="Data Transmission
+(Encode & send data)" color=lightblue2 fontname=Helvetica shape=box style=filled]
+	{
+		rank=same
+		A
+		B
+		C
+		D
+	}
+	{
+		rank=same
+		E
+		F
+		G
+		H
+	}
+	A -> B [label=Capture]
+	B -> C [label=Preprocess]
+	C -> D [label=Detect]
+	D -> E [label=Track]
+	E -> F [label=Annotate]
+	F -> H [label=Transmit]
+	F -> G [label=Monitor]
+	H -> A [label="Next frame" constraint=false]
+}

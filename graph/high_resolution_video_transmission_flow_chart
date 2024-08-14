@@ -1,0 +1,10 @@
+digraph {
+	rankdir=TB size="12,8"
+	Drone [label=Drone color=lightgoldenrod1 fontname=Helvetica fontsize=14 margin="0.3,0.1" shape=ellipse style=filled]
+	Network [label=Network color=lightblue fontname=Helvetica fontsize=14 margin="0.3,0.1" shape=diamond style=filled]
+	CPU [label=CPU color=lightcoral fontname=Helvetica fontsize=14 margin="0.3,0.1" shape=box style=filled]
+	Drone -> Network [label="Transmit Video Frames
+(WiFi/4G/5G)" color=grey fontcolor=darkblue fontname=Helvetica fontsize=12]
+	Network -> CPU [label="Forward Frames
+(TCP/UDP)" color=grey fontcolor=darkblue fontname=Helvetica fontsize=12]
+}

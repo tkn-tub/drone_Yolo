@@ -1,0 +1,41 @@
+// Object Detection Techniques
+digraph {
+	bgcolor=white color=lightgrey rankdir=TB size=15 style=filled
+	node [color=lightblue fontname=Helvetica fontsize=20 height=1.5 shape=rect style=filled width=1.5]
+	edge [arrowhead=open color=black fontname=Helvetica fontsize=20 style=bold]
+	A [label="Object Detection Techniques" color=darkgrey fontcolor=white shape=rect style=filled]
+	B [label="Traditional object
+Detector"]
+	C [label="VJ detector"]
+	D [label=HOG]
+	E [label=DPM]
+	F [label="Deep learning based
+object detectors"]
+	G [label="Two stage
+detector"]
+	H [label="One stage
+detector"]
+	I [label=RCNN]
+	J [label=SPP]
+	K [label="Fast RCNN"]
+	L [label="Faster RCNN"]
+	M [label=YOLO]
+	N [label=SSD]
+	O [label=RetinaNet]
+	P [label=LADet]
+	A -> B
+	A -> F
+	B -> C
+	B -> D
+	B -> E
+	F -> G
+	F -> H
+	G -> I
+	G -> J
+	G -> K
+	G -> L
+	H -> M
+	H -> N
+	H -> O
+	H -> P
+}

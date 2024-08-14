@@ -1,0 +1,37 @@
+// UAV Network Architecture
+digraph {
+	graph [size="12,12"]
+	node [fontname=Helvetica fontsize=12 height=1 shape=box style=filled width=2]
+	edge [fontname=Helvetica fontsize=10]
+	D1 [label="Mini Drone
+(Tello)" fillcolor="#add8e6" fontcolor="#000000"]
+	UD [label="User Device
+(Laptop)" fillcolor="#d3d3d3" fontcolor="#000000"]
+	CPU [label="Central Processing Unit
+(Flask Server)" fillcolor="#90ee90" fontcolor="#000000"]
+	PP [label="Image Processing
+(YOLOv8-M)
+Metal GPU Acceleration" fillcolor="#ffa07a" fontcolor="#000000"]
+	IS [label="Intermediary Service
+(UDP to HTTP)" fillcolor="#ffb6c1" fontcolor="#000000"]
+	UI [label="User Interface
+(Web Dashboard)" fillcolor="#ffcc99" fontcolor="#000000"]
+	subgraph cluster_user_device {
+		color=black label="User Device (Laptop)"
+		color="#f0f0f0" style=filled
+		CPU
+		PP
+		IS
+		UI
+		IS -> PP [label="Video Data" color="#8a2be2"]
+		PP -> CPU [label="Processed Data" color="#8a2be2"]
+		UI -> CPU [label="Control Commands
+WebSocket" color="#00008b"]
+		CPU -> IS [label="HTTP POST (Video Data)" color="#ff0000"]
+		CPU -> UI [label="WebSocket (Real-Time Data)
+HTTP (API)" color="#32cd32"]
+	}
+	D1 -> UD [label="WiFi (2.4 GHz)
+UDP Port 8889 (Commands)
+UDP Port 11111 (Video Stream)" color="#0000ff" dir=both]
+}

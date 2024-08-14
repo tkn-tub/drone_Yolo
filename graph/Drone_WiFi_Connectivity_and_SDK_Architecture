@@ -1,0 +1,42 @@
+// Drone WiFi Connectivity and SDK Architecture
+digraph {
+	graph [size="12,12"]
+	node [fontname=Helvetica fontsize=12 height=1 shape=box style=filled width=2]
+	edge [fontname=Helvetica fontsize=10]
+	D1 [label="Mini Drone
+(Tello)" fillcolor="#add8e6" fontcolor="#000000"]
+	CPU [label="Central Processing Unit
+(Laptop with Flask Server)" fillcolor="#90ee90" fontcolor="#000000"]
+	D1 -> CPU [label="WiFi (2.4 GHz)
+UDP Port 8889 (Commands)" color="#0000ff" dir=forward]
+	CPU -> D1 [label="UDP Port 11111 (Video Stream)" color="#0000ff" dir=back]
+	SDK [label="DJI Tello SDK
+(Control Library)" fillcolor="#ffb6c1" fontcolor="#000000"]
+	Stream [label="Video Stream Processor" fillcolor="#ffa07a" fontcolor="#000000"]
+	App [label="Application Logic" fillcolor="#ffcc99" fontcolor="#000000"]
+	subgraph cluster_cpu {
+		color=black label="Central Processing Unit (Laptop)"
+		color="#f0f0f0" style=filled
+		SDK
+		Stream
+		App
+		SDK -> Stream [label="Send Control Commands
+Receive Video Stream" color="#ff6347"]
+		App -> SDK [label="Interface with SDK" color="#4682b4"]
+		Stream -> App [label="Processed Video Frames" color="#32cd32"]
+	}
+	subgraph cluster_legend {
+		color=black label=Legend
+		color="#ffffff" style=filled
+		Command [label="UDP Port 8889
+(Control Commands)" fontcolor="#000000" shape=plaintext]
+		Video [label="UDP Port 11111
+(Video Stream)" fontcolor="#000000" shape=plaintext]
+		SDK_Desc [label="DJI Tello SDK
+(Control Library)" fontcolor="#000000" shape=plaintext]
+		Stream_Desc [label="Video Stream Processor
+(Processes Video Frames)" fontcolor="#000000" shape=plaintext]
+		App_Desc [label="Application Logic
+(Handles App Logic)" fontcolor="#000000" shape=plaintext]
+	}
+}

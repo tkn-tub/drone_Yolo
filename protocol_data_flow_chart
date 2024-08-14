@@ -1,0 +1,31 @@
+digraph {
+	CPU [label=CPU]
+	Flask [label="Flask Server"]
+	SocketIO [label="Socket.IO Server"]
+	UI [label="User Interface"]
+	AppLogic [label="Application Logic"]
+	ClientSocket [label="Client Socket"]
+	Browser [label="Web Browser"]
+	CPU -> Flask [label="Send Data
+(HTTP/HTTPS)"]
+	Flask -> AppLogic [label="Process Data
+(Internal)"]
+	AppLogic -> SocketIO [label="Emit Event
+(HTTP/WebSocket Frame)"]
+	SocketIO -> ClientSocket [label="Transmit Data
+(WebSocket Frame)"]
+	ClientSocket -> UI [label="Update UI
+(JSON Frame)"]
+	UI -> Browser [label="Render Data
+(HTML/CSS/JS)"]
+	Browser -> ClientSocket [label="Establish Connection
+(WebSocket Handshake)"]
+	ClientSocket -> SocketIO [label="Receive Events
+(WebSocket Frame)"]
+	SocketIO -> AppLogic [label="Acknowledge
+(Internal)"]
+	AppLogic -> Flask [label="Acknowledge
+(Internal)"]
+	Flask -> CPU [label="Send Response
+(HTTP/HTTPS)"]
+}

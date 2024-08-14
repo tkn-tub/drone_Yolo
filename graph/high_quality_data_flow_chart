@@ -1,0 +1,48 @@
+digraph {
+	rankdir=LR size="10,7"
+	CPU [label=CPU color=lightblue fontname=Helvetica fontsize=12 shape=box style=filled]
+	Flask [label="Flask Server" color=lightblue fontname=Helvetica fontsize=12 shape=box style=filled]
+	SocketIO [label="Socket.IO Server" color=lightblue fontname=Helvetica fontsize=12 shape=box style=filled]
+	AppLogic [label="Application Logic" color=lightblue fontname=Helvetica fontsize=12 shape=box style=filled]
+	ClientSocket [label="Client Socket" color=lightblue fontname=Helvetica fontsize=12 shape=box style=filled]
+	UI [label="User Interface" color=lightblue fontname=Helvetica fontsize=12 shape=box style=filled]
+	Browser [label="Web Browser" color=lightblue fontname=Helvetica fontsize=12 shape=box style=filled]
+	{
+		rank=same
+		CPU
+		Flask
+		SocketIO
+	}
+	{
+		rank=same
+		AppLogic
+		ClientSocket
+	}
+	{
+		rank=same
+		UI
+		Browser
+	}
+	CPU -> Flask [label="Send Data
+(HTTP/HTTPS)" color=grey fontcolor=darkblue fontname=Helvetica fontsize=10]
+	Flask -> AppLogic [label="Process Data
+(Internal)" color=grey fontcolor=darkblue fontname=Helvetica fontsize=10]
+	AppLogic -> SocketIO [label="Emit Event
+(HTTP/WebSocket Frame)" color=grey fontcolor=darkblue fontname=Helvetica fontsize=10]
+	SocketIO -> ClientSocket [label="Transmit Data
+(WebSocket Frame)" color=grey fontcolor=darkblue fontname=Helvetica fontsize=10]
+	ClientSocket -> UI [label="Update UI
+(JSON Frame)" color=grey fontcolor=darkblue fontname=Helvetica fontsize=10]
+	UI -> Browser [label="Render Data
+(HTML/CSS/JS)" color=grey fontcolor=darkblue fontname=Helvetica fontsize=10]
+	Browser -> ClientSocket [label="Establish Connection
+(WebSocket Handshake)" color=grey fontcolor=darkblue fontname=Helvetica fontsize=10]
+	ClientSocket -> SocketIO [label="Receive Events
+(WebSocket Frame)" color=grey fontcolor=darkblue fontname=Helvetica fontsize=10]
+	SocketIO -> AppLogic [label="Acknowledge
+(Internal)" color=grey fontcolor=darkblue fontname=Helvetica fontsize=10]
+	AppLogic -> Flask [label="Acknowledge
+(Internal)" color=grey fontcolor=darkblue fontname=Helvetica fontsize=10]
+	Flask -> CPU [label="Send Response
+(HTTP/HTTPS)" color=grey fontcolor=darkblue fontname=Helvetica fontsize=10]
+}

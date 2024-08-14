@@ -1,0 +1,9 @@
+digraph {
+	CPU [label=CPU]
+	Flask [label="Flask Server"]
+	SocketIO [label=SocketIO]
+	UI [label="User Interface"]
+	CPU -> Flask [label="Sends Data"]
+	Flask -> SocketIO [label="Emits Data"]
+	SocketIO -> UI [label="Updates Interface"]
+}

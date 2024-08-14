@@ -1,0 +1,32 @@
+digraph {
+	rankdir=LR size="8,5"
+	CPU [label=CPU color=lightgrey fontname=Helvetica fontsize=12 shape=box style=filled]
+	Flask [label="Flask Server" color=lightgrey fontname=Helvetica fontsize=12 shape=box style=filled]
+	SocketIO [label="Socket.IO Server" color=lightgrey fontname=Helvetica fontsize=12 shape=box style=filled]
+	UI [label="User Interface" color=lightgrey fontname=Helvetica fontsize=12 shape=box style=filled]
+	AppLogic [label="Application Logic" color=lightgrey fontname=Helvetica fontsize=12 shape=box style=filled]
+	ClientSocket [label="Client Socket" color=lightgrey fontname=Helvetica fontsize=12 shape=box style=filled]
+	Browser [label="Web Browser" color=lightgrey fontname=Helvetica fontsize=12 shape=box style=filled]
+	CPU -> Flask [label="Send Data
+(HTTP/HTTPS)" color=black fontcolor=blue fontname=Helvetica fontsize=10]
+	Flask -> AppLogic [label="Process Data
+(Internal)" color=black fontcolor=blue fontname=Helvetica fontsize=10]
+	AppLogic -> SocketIO [label="Emit Event
+(HTTP/WebSocket Frame)" color=black fontcolor=blue fontname=Helvetica fontsize=10]
+	SocketIO -> ClientSocket [label="Transmit Data
+(WebSocket Frame)" color=black fontcolor=blue fontname=Helvetica fontsize=10]
+	ClientSocket -> UI [label="Update UI
+(JSON Frame)" color=black fontcolor=blue fontname=Helvetica fontsize=10]
+	UI -> Browser [label="Render Data
+(HTML/CSS/JS)" color=black fontcolor=blue fontname=Helvetica fontsize=10]
+	Browser -> ClientSocket [label="Establish Connection
+(WebSocket Handshake)" color=black fontcolor=blue fontname=Helvetica fontsize=10]
+	ClientSocket -> SocketIO [label="Receive Events
+(WebSocket Frame)" color=black fontcolor=blue fontname=Helvetica fontsize=10]
+	SocketIO -> AppLogic [label="Acknowledge
+(Internal)" color=black fontcolor=blue fontname=Helvetica fontsize=10]
+	AppLogic -> Flask [label="Acknowledge
+(Internal)" color=black fontcolor=blue fontname=Helvetica fontsize=10]
+	Flask -> CPU [label="Send Response
+(HTTP/HTTPS)" color=black fontcolor=blue fontname=Helvetica fontsize=10]
+}

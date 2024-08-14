@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orange Monitor</title>
+    <script src="{{ url_for('static', filename='js/socket.io.min.js') }}" defer></script>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #333;
+        }
+
+        nav {
+            width: 100%;
+            background-color: #007bff;
+            color: white;
+            padding: 15px 0;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        nav h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .button-container {
+            display: flex;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        #container {
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            gap: 20px;
+            width: 100%;
+            padding: 0 20px;
+        }
+
+        #video-container {
+            flex: 3;
+            margin: 20px 0;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            border: 2px solid #ccc;
+            background-color: #fff;
+            padding: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        #video-stream {
+            max-width: 100%;
+            height: auto;
+        }
+
+        #details-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            margin-top: 20px;
+        }
+
+        #count-container {
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        #count-container img {
+            width: 24px;
+            height: 24px;
+            margin-right: 10px;
+        }
+
+        #count {
+            color: orange;
+            font-size: 24px;
+            font-weight: bold;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        #count.increment {
+            transform: scale(1.5);
+        }
+
+        #latency-container,
+        #avg-latency-container,
+        #latency-category-container {
+            font-size: 18px;
+            color: #555;
+            margin-bottom: 10px;
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 600px;
+            max-height: 90%;
+            overflow-y: auto;
+            text-align: center;
+        }
+
+        .modal-content h2 {
+            margin-top: 0;
+        }
+
+        .modal-content label {
+            display: block;
+            margin: 15px 0 5px;
+            text-align: left;
+        }
+
+        .modal-content input,
+        .modal-content select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .modal-content button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        .modal-content button:hover {
+            background-color: #0056b3;
+        }
+
+        .modal-content button:active {
+            transform: scale(0.98);
+        }
+
+        .modal-content .close {
+            background-color: #ccc;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <nav>
+        <h1>Orange Monitor</h1>
+    </nav>
+    <div class="button-container">
+        <button onclick="connectToDrone()">Connect to Drone</button>
+        <button onclick="startStream()">Start Stream</button>
+        <button onclick="stopStream()">Stop Stream</button>
+        <button onclick="showFlightModal()">Start Flight</button>
+    </div>
+    <div id="container">
+        <div id="video-container">
+            <img id="video-stream" src="" alt="Tello Video Stream">
+        </div>
+        <div id="details-container">
+            <div id="count-container">
+                <img src="{{ url_for('static', filename='img/orange.png') }}" alt="Orange Icon">
+                <span id="count">0</span>
+            </div>
+            <div id="latency-container">
+                Latency: <span id="latency">0</span> ms
+            </div>
+            <div id="avg-latency-container">
+                Average Latency: <span id="avg-latency">0</span> ms
+            </div>
+            <div id="latency-category-container">
+                Latency Category: <span id="latency-category">Low</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Flight Configuration -->
+    <div id="flightModal" class="modal">
+        <div class="modal-content">
+            <h2>Configure Flight Path</h2>
+
+            <label for="distance">Distance from Tree (cm):</label>
+            <input type="number" id="distance" placeholder="Enter distance in cm">
+
+            <label for="radius">Radius of Tree (cm):</label>
+            <input type="number" id="radius" placeholder="Enter radius in cm">
+
+            <label for="shape">Select Shape:</label>
+            <select id="shape">
+                <option value="square">Square</option>
+                <option value="10_faces">10 Faces</option>
+                <option value="12_faces">12 Faces</option>
+                <option value="circle">Circle</option>
+            </select>
+
+            <label for="speed">Flight Speed (cm/s):</label>
+            <input type="number" id="speed" placeholder="Enter speed in cm/s">
+
+            <div style="display: flex; justify-content: center; margin-top: 20px;">
+                <button class="close" onclick="closeFlightModal()">Cancel</button>
+                <button onclick="startFlight()">Start Flight</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        // Connect to the drone
+        const connectToDrone = () => {
+            fetch('/command_handler', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ command: 'connect' })
+            })
+            .then(response => response.json())
+            .then(data => alert(data.message))
+            .catch(error => console.error('Error:', error));
+        };
+
+        // Start video stream from the drone
+        const startStream = () => {
+            fetch('/command_handler', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ command: 'start_stream' })
+            })
+            .then(response => response.json())
+            .then(data => alert(data.message))
+            .catch(error => console.error('Error:', error));
+        };
+
+        // Stop video stream from the drone
+        const stopStream = () => {
+            fetch('/command_handler', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ command: 'stop_stream' })
+            })
+            .then(response => response.json())
+            .then(data => alert(data.message))
+            .catch(error => console.error('Error:', error));
+        };
+
+        // Show the modal for flight configuration
+        const showFlightModal = () => {
+            const flightModal = document.getElementById('flightModal');
+            flightModal.style.display = 'flex';
+        };
+
+        // Close the flight configuration modal
+        const closeFlightModal = () => {
+            const flightModal = document.getElementById('flightModal');
+            flightModal.style.display = 'none';
+        };
+
+        // Start the flight with the specified parameters
+        const startFlight = () => {
+            const distance = document.getElementById('distance').value;
+            const radius = document.getElementById('radius').value;
+            const shape = document.getElementById('shape').value;
+            const speed = document.getElementById('speed').value;
+
+            // Before starting the flight, ensure the drone is connected and stream is on
+            fetch('/command_handler', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ command: 'connect' })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message === 'Drone connected successfully.') {
+                    return fetch('/command_handler', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ command: 'start_stream' })
+                    });
+                } else {
+                    throw new Error('Failed to connect to drone');
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message === 'Video streaming started.') {
+                    // Pass flight parameters to the server
+                    return fetch('/command_handler', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ command: 'start_flight', distance, radius, shape, speed })
+                    });
+                } else {
+                    throw new Error('Failed to start video stream');
+                }
+            })
+            .then(response => response.json())
+            .then(data => alert(data.message))
+            .catch(error => console.error('Error:', error))
+            .finally(() => closeFlightModal());
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const socket = io();
+
+            socket.on('video_frame', (data) => {
+                const videoContainer = document.getElementById('video-container');
+                const imgElement = document.getElementById('video-stream');
+                videoContainer.style.display = 'flex';
+                imgElement.src = `data:image/jpeg;base64,${data.image_data}`;
+
+                // Update the count of unique objects
+                const countElement = document.getElementById('count');
+                countElement.textContent = data.count;
+                countElement.classList.add('increment');
+                setTimeout(() => countElement.classList.remove('increment'), 300);
+
+                // Update the latency
+                const latencyElement = document.getElementById('latency');
+                latencyElement.textContent = data.total_latency;
+
+                // Update the average latency
+                const avgLatencyElement = document.getElementById('avg-latency');
+                avgLatencyElement.textContent = data.avg_latency.toFixed(2);
+
+                // Update the latency category
+                const latencyCategoryElement = document.getElementById('latency-category');
+                latencyCategoryElement.textContent = data.latency_category;
+            });
+
+            socket.on('status', (data) => {
+                alert(data.message);
+            });
+        });
+    </script>
+</body>
+
+</html>
